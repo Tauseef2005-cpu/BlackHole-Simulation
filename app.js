@@ -924,6 +924,42 @@ window.addEventListener('DOMContentLoaded', () => {
         state.targetDist = Math.max(2.5, Math.min(60.0, state.targetDist));
     }, { passive: false });
 
+    // Touch controls for mobile devices (1 finger rotate, 2 finger pinch-to-zoom)
+    let touchStartX = 0, touchStartY = 0;
+    let initialPinchDist = 0;
+    let initialTargetDist = state.targetDist;
+
+    canvas.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        } else if (e.touches.length === 2) {
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            initialPinchDist = Math.hypot(dx, dy);
+            initialTargetDist = state.targetDist;
+        }
+    }, { passive: true });
+
+    canvas.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 1) {
+            const dx = e.touches[0].clientX - touchStartX;
+            const dy = e.touches[0].clientY - touchStartY;
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+
+            state.targetYaw += dx * 0.25;
+            state.targetPitch += dy * 0.25;
+            state.targetPitch = Math.max(-89.0, Math.min(89.0, state.targetPitch));
+        } else if (e.touches.length === 2 && initialPinchDist > 0) {
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            const currentDist = Math.hypot(dx, dy);
+            const factor = initialPinchDist / Math.max(currentDist, 1.0);
+            state.targetDist = Math.max(2.5, Math.min(60.0, initialTargetDist * factor));
+        }
+    }, { passive: true });
+
     // Keyboard Shortcuts
     window.addEventListener('keydown', (e) => {
         if (e.key === 'Tab') {
