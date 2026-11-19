@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Photorealistic 3D Real-Time Relativistic Black Hole Simulation in WebGL 2.0 with Schwarzschild & Kerr Light Deflection and Volumetric Accretion Disk.">
+    <title>Photorealistic 3D Relativistic Black Hole Simulation</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- WebGL Canvas Container -->
+    <div id="canvas-container">
+        <canvas id="gl-canvas"></canvas>
+    </div>
+
+    <!-- HUD Header Overlay -->
+    <header class="hud-header">
+        <h1>Black Hole</h1>
+        <h2>Relativistic Geodesic Simulation</h2>
+        <div class="hud-stats">
+            <span>FPS: <strong id="hud-fps">60.0 FPS (16.6ms)</strong></span>
+            <span>Rs: <strong id="metric-rs">2.00</strong></span>
+        </div>
+    </header>
+
+    <!-- Main Interactive Control Panel -->
+    <main class="control-panel" id="control-panel">
+        <div class="panel-header-actions">
+            <button id="btn-reset" class="btn-primary">⚡ RESET CINEMATIC</button>
+            <button id="btn-sound" class="btn-secondary">🎵 Space Audio</button>
+        </div>
+
+        <nav class="tabs-nav">
+            <button class="tab-btn active" data-tab="blackhole">Black Hole</button>
+            <button class="tab-btn" data-tab="lensing">Lensing</button>
+            <button class="tab-btn" data-tab="disk">Accretion Disk</button>
+            <button class="tab-btn" data-tab="rendering">Rendering</button>
+            <button class="tab-btn" data-tab="presets">Presets</button>
+        </nav>
+
+        <section class="tabs-content">
+            <!-- TAB 1: BLACK HOLE -->
+            <div class="tab-pane active" id="tab-blackhole">
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Mass (M)</span>
+                        <span class="val" id="mass-val">1.00</span>
+                    </div>
+                    <input type="range" id="mass" min="0.5" max="3.0" step="0.05" value="1.0">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Spin Parameter (a)</span>
+                        <span class="val" id="spin-val">0.85</span>
+                    </div>
+                    <input type="range" id="spin" min="-0.998" max="0.998" step="0.002" value="0.85">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Rotation Speed</span>
+                        <span class="val" id="rot-speed-val">1.00</span>
+                    </div>
+                    <input type="range" id="rot-speed" min="0.0" max="5.0" step="0.1" value="1.0">
+                </div>
+
+                <div class="metrics-card">
+                    <h4>Calculated Astrophysics Metrics</h4>
+                    <div class="metric-row">
+                        <span>Schwarzschild Radius (Rs):</span>
+                        <span id="metric-rs">2.00</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Photon Sphere Radius:</span>
+                        <span id="metric-rphot">2.83</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>ISCO Radius (R_isco):</span>
+                        <span id="metric-risco">2.31</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: GRAVITATIONAL LENSING -->
+            <div class="tab-pane" id="tab-lensing">
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Lens Strength</span>
+                        <span class="val" id="lens-str-val">1.00</span>
+                    </div>
+                    <input type="range" id="lens-str" min="0.0" max="3.0" step="0.05" value="1.0">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Photon Ring Intensity</span>
+                        <span class="val" id="ring-int-val">2.50</span>
+                    </div>
+                    <input type="range" id="ring-int" min="0.0" max="10.0" step="0.1" value="2.5">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Gravitational Distortion</span>
+                        <span class="val" id="dist-fac-val">1.00</span>
+                    </div>
+                    <input type="range" id="dist-fac" min="0.0" max="2.0" step="0.05" value="1.0">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Doppler Beaming Factor</span>
+                        <span class="val" id="doppler-val">1.00</span>
+                    </div>
+                    <input type="range" id="doppler" min="0.0" max="2.0" step="0.05" value="1.0">
+                </div>
+            </div>
+
+            <!-- TAB 3: ACCRETION DISK -->
+            <div class="tab-pane" id="tab-disk">
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Inner Radius Ratio</span>
+                        <span class="val" id="disk-inner-val">1.00</span>
+                    </div>
+                    <input type="range" id="disk-inner" min="0.8" max="2.5" step="0.05" value="1.0">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Outer Radius</span>
+                        <span class="val" id="disk-outer-val">14</span>
+                    </div>
+                    <input type="range" id="disk-outer" min="6.0" max="25.0" step="1.0" value="14.0">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Thickness</span>
+                        <span class="val" id="disk-thick-val">0.35</span>
+                    </div>
+                    <input type="range" id="disk-thick" min="0.05" max="1.5" step="0.05" value="0.35">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Brightness Intensity</span>
+                        <span class="val" id="disk-bright-val">2.20</span>
+                    </div>
+                    <input type="range" id="disk-bright" min="0.2" max="10.0" step="0.1" value="2.2">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Temperature Color Ramp</span>
+                        <span class="val" id="disk-temp-val">1.00</span>
+                    </div>
+                    <input type="range" id="disk-temp" min="0.2" max="3.0" step="0.05" value="1.0">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Keplerian Turbulence</span>
+                        <span class="val" id="disk-turb-val">1.00</span>
+                    </div>
+                    <input type="range" id="disk-turb" min="0.1" max="4.0" step="0.1" value="1.0">
+                </div>
+            </div>
+
+            <!-- TAB 4: RENDERING & QUALITY -->
+            <div class="tab-pane" id="tab-rendering">
+                <div class="control-group">
+                    <label for="quality-preset" class="control-label">Quality Preset</label>
+                    <select id="quality-preset">
+                        <option value="0">Fast (24 Ray Steps)</option>
+                        <option value="1" selected>High Performance (48 Ray Steps - Max FPS)</option>
+                        <option value="2">High Quality (64 Ray Steps)</option>
+                        <option value="3">Ultra Fidelity (96 Ray Steps)</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Ray Marching Steps</span>
+                        <span class="val" id="ray-steps-val">48</span>
+                    </div>
+                    <input type="range" id="ray-steps" min="16" max="128" step="4" value="48">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Bloom Threshold</span>
+                        <span class="val" id="bloom-thresh-val">1.20</span>
+                    </div>
+                    <input type="range" id="bloom-thresh" min="0.5" max="3.0" step="0.1" value="1.2">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Bloom Intensity</span>
+                        <span class="val" id="bloom-int-val">1.50</span>
+                    </div>
+                    <input type="range" id="bloom-int" min="0.0" max="4.0" step="0.1" value="1.5">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Starfield Density</span>
+                        <span class="val" id="star-dens-val">1.00</span>
+                    </div>
+                    <input type="range" id="star-dens" min="0.0" max="2.0" step="0.1" value="1.0">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Background Brightness</span>
+                        <span class="val" id="bg-bright-val">1.00</span>
+                    </div>
+                    <input type="range" id="bg-bright" min="0.0" max="2.0" step="0.1" value="1.0">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Time Scale Speed</span>
+                        <span class="val" id="time-scale-val">1.00</span>
+                    </div>
+                    <input type="range" id="time-scale" min="0.0" max="5.0" step="0.1" value="1.0">
+                </div>
+
+                <label class="checkbox-label">
+                    <input type="checkbox" id="pause-chk">
+                    <span>Pause Simulation Physics (SPACE)</span>
+                </label>
+            </div>
+
+            <!-- TAB 5: PRESETS -->
+            <div class="tab-pane" id="tab-presets">
+                <div class="control-group">
+                    <label for="preset-select" class="control-label">Cinematic Preset</label>
+                    <select id="preset-select">
+                        <option value="gargantua">🌌 Gargantua (Interstellar)</option>
+                        <option value="kerr">🌀 Extreme Kerr Spin (a = 0.998)</option>
+                        <option value="lensing">🔭 Heavy Gravitational Lensing</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Bottom Hotkey Tooltip Bar -->
+    <footer class="hotkey-bar">
+        <span class="hotkey-item"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> Orbit View</span>
+        <span class="hotkey-item"><kbd>Drag</kbd> Mouse Rotate</span>
+        <span class="hotkey-item"><kbd>Scroll</kbd> Zoom</span>
+        <span class="hotkey-item"><kbd>TAB</kbd> Toggle UI</span>
+        <span class="hotkey-item"><kbd>SPACE</kbd> Pause</span>
+        <span class="hotkey-item"><kbd>R</kbd> Reset</span>
+    </footer>
+
+    <!-- Main WebGL Simulation Script -->
+    <script src="app.js"></script>
+</body>
+</html>
